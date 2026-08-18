@@ -1,0 +1,60 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cforumdeploy2",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-08-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "CFORUM_DB",
+      "database_name": "cforum-db",
+      "migrations_dir": "./migrations","database_id": "1fd72b96-abe3-45dc-a6c7-dbb52fde88d8"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_MEDIA",
+      "bucket_name": "cforum-public-media","preview_bucket_name": "cforum-public-media"
+    },
+    {
+      "binding": "PRIVATE_MEDIA",
+      "bucket_name": "cforum-private-media","preview_bucket_name": "cforum-private-media"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "EMAIL_QUEUE",
+        "queue": "cforum-email"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "cforum-email",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "cforum-email-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["17 2 * * *", "*/15 * * * *", "7 * * * *"]
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "APP_ORIGIN": "https://nexus.voto",
+    "PRIVATE_MEDIA_BUCKET_NAME": "cforum-private-media",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAEUYaXNH2UvoCgwm"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "cforumdeploy2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare-native lightweight community forum",
+  "scripts": {
+    "dev": "vite --configLoader runner --host 127.0.0.1",
+    "dev:worker": "wrangler dev --local --port 8787",
+    "dev:full": "concurrently -k -n api,web \"npm:dev:worker\" \"npm:dev\"",
+    "build": "vite build --configLoader runner && wrangler deploy --dry-run --outdir .wrangler-dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --configLoader runner",
+    "test:watch": "vitest --configLoader runner",
+    "db:migrate": "wrangler d1 migrations apply CFORUM_DB --local",
+    "db:migrate:validate": "wrangler d1 migrations apply CFORUM_DB --local --persist-to .tmp/d1-validation",
+    "db:migrate:remote": "wrangler d1 migrations apply CFORUM_DB --remote",
+    "deploy": "node scripts/deploy.mjs",
+    "cf-typegen": "wrangler types src/worker/bindings.generated.d.ts"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
+    "aws4fetch": "^1.0.20",
+    "hono": "^4.9.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "remove-markdown": "^0.6.4",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260811.1",
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.1",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.40.0",
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.29.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "cloudflare": {
+    "bindings": {
+      "APP_ORIGIN": {
+        "description": "论坛的完整 HTTPS 来源，例如 `https://forum.example.com`；用于 CSRF 与 WebAuthn 校验。"
+      },
+      "SESSION_HMAC_SECRET": {
+        "description": "独立的 32 字节以上随机会话 HMAC 密钥。"
+      },
+      "OTP_HMAC_SECRET": {
+        "description": "独立的 32 字节以上随机邮箱验证码 HMAC 密钥。"
+      },
+      "INVITE_HMAC_SECRET": {
+        "description": "独立的 32 字节以上随机邀请令牌 HMAC 密钥。"
+      },
+      "WEBAUTHN_CHALLENGE_SECRET": {
+        "description": "独立的 32 字节以上随机 WebAuthn challenge HMAC 密钥。"
+      },
+      "BOOTSTRAP_ADMIN_SECRET": {
+        "description": "首次安装管理员使用的一次性随机密钥，安装完成后应轮换。"
+      },
+      "TURNSTILE_SITE_KEY": {
+        "description": "在 Cloudflare Turnstile 控制台创建组件后取得的公开 Site Key。"
+      },
+      "TURNSTILE_SECRET": {
+        "description": "Turnstile 组件的 Secret Key。"
+      },
+      "RESEND_API_KEY": {
+        "description": "Resend API Key；公开注册的生产部署必须配置邮件提供商。"
+      },
+      "EMAIL_FROM": {
+        "description": "已在邮件提供商验证的发件地址，例如 `CForum <noreply@example.com>`。"
+      },
+      "R2_ACCOUNT_ID": {
+        "description": "生成 R2 S3 Presigned URL 所需的 Cloudflare Account ID。"
+      },
+      "R2_ACCESS_KEY_ID": {
+        "description": "仅限两个媒体 bucket 的 R2 API Token Access Key ID。"
+      },
+      "R2_SECRET_ACCESS_KEY": {
+        "description": "与 R2 Access Key 配对的 Secret；只保存为 Worker Secret。"
+      }
+    }
+  }
+}

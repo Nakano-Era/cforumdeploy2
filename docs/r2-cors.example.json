@@ -1,0 +1,15 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://forum.example.com",
+      "http://127.0.0.1:5173"
+    ],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": [
+      "Content-Type",
+      "x-amz-checksum-sha256"
+    ],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]
